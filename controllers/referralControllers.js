@@ -146,7 +146,7 @@ router.get("/:id", async (req, res) => {
     res.json(referrer);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to fetch referral" });
+    res.status(500).json({ error: "Failed to fetch referral", details: error.message });
   }
 });
 
