@@ -7,21 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Referrer {
-  id             Int      @id @default(autoincrement())
-  name           String
-  email          String   @unique
-  referrals      Referred[]
-  createdAt      DateTime @default(now())
-}
-
 model Referred {
   id             Int      @id @default(autoincrement())
   name           String
-  email          String   
-  registered     Boolean  @default(false)  // Track registration status
+  email          String
+  course         String  @default("No Course") // Add default value
+  registered     Boolean @default(false)
   referrerId     Int
   referrer       Referrer @relation(fields: [referrerId], references: [id])
   createdAt      DateTime @default(now())
+}
+
+model Referrer {
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String
+  referrals      Referred[]
 }
 
