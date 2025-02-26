@@ -73,58 +73,6 @@ router.post(
 );
 
 
-// Create a Referral
-router.post(
-  '/',
-  [
-    body('referrerName').notEmpty().withMessage('Referrer name is required'),
-    body('referrerEmail').isEmail().withMessage('Valid referrer email required'),
-    body('referredName').notEmpty().withMessage('Referred name is required'),
-    body('referredEmail').isEmail().withMessage('Valid referred email required'),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
-    const { referrerName, referrerEmail, referredName, referredEmail } = req.body;
-
-    try {
-      // Check if the referred user already registered
-      const existingReferred = await prisma.referred.findFirst({
-        where: {
-          email: referredEmail,
-          registered: true, // Only care if they already registered
-        },
-      });
-
-      if (existingReferred) {
-        return res.status(400).json({ error: 'This person has already registered and cannot be referred again.' });
-      }
-
-      // Create or find the referrer
-      const referrer = await prisma.referrer.upsert({
-        where: { email: referrerEmail },
-        update: {},
-        create: { name: referrerName, email: referrerEmail },
-      });
-
-      // Create the referral
-      const referred = await prisma.referred.create({
-        data: {
-          name: referredName,
-          email: referredEmail,
-          referrerId: referrer.id,
-        },
-      });
-
-      res.status(201).json({ message: 'Referral created successfully!', referrer, referred });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to create referral', details: error.message });
-    }
-  }
-);
-
-
 // Get All Referrals
 router.get('/', async (req, res) => {
   try {
